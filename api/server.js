@@ -1,7 +1,27 @@
 // BUILD YOUR SERVER HERE
 const express = require('express')
 const User = require('./users/model')
+
 const server = express()
+server.use(express.json())
+
+
+server.post('/api/users', (req, res) => {
+    const user = req.body;
+    if (!user.name || !user.bio) {
+        res.status(400).json({ message: "Please provide name and bio for the user", })
+    }else {
+        User.insert(user)
+        .then(newUser => {
+            res.status(201).json(newUser)
+           }).catch(err => {
+            res.status(500).json({
+                message: 'error creating user',
+                err: err.message,
+            })
+           })
+    }
+})
 
 server.get('/api/users', (req, res) => {
    User.find()
@@ -32,6 +52,7 @@ server.get('/api/users/:id', (req, res) => {
      })
     })
  })
+
 
 server.use('*', (req, res)=> {
     res.status(404).json({message: "not found"})
